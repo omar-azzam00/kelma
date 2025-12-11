@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+      class="xl:text[20px] sm:text-[17.5px] lg:text-[19px] text-[15.5px]">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>كلمتي</title>
+        <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+              rel="stylesheet" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/kelma.css') }}" />
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body x-data="{ showDeleteKelmaDialog: false }"
+          class="relative -z-20 bg-my-black min-h-screen bg-cover bg-no-repeat  leading-none text-white bg-[url('../images/kelma-bg-.5.png')] sm:bg-[url('../images/kelma-bg.png')] xl:bg-[url('../images/kelma-bg-2.png')">
+        <div class="absolute -z-10 w-full h-full top-0 left-0 bg-black/40"></div>
+        {% if kelma %}
+            <div class="fixed w-full h-full  bg-black/50 z-10 flex justify-center items-center p-8"
+                 x-show="showDeleteKelmaDialog"
+                 role="dialog"
+                 x-transition
+                 x-cloak
+                 tabindex="-1">
+                <div class="bg-my-black-lighter p-4 rounded w-full max-w-xl h-content max-h-full overflow-y-auto"
+                     @click.outside="showDeleteKelmaDialog = false;">
+                    <button class="block bg-none border-none mr-auto cursor-pointer mb-8"
+                            @click="showDeleteKelmaDialog = false;">
+                        <img class="w-6"
+                             src="{{ url_for('static', filename='images/close.png') }}"
+                             alt="Close Button">
+                    </button>
+                    <div class="text-center">
+                        {% if kelma.premium %}
+                            <p class="text-4xl mb-4">
+                                سوف يضيع اشتراكك نهائيا هل انت متأكد من أنك تريد ازالة كلمتك ؟
+                            </p>
+                        {% else %}
+                            <p class="text-4xl mb-4">هل انت متأكد من أنك تريد ازالة كلمتك ؟</p>
+                        {% endif %}
+                        <button @click="showDeleteKelmaDialog=false"
+                                class="bg-btn-cancel me-1 hover:cursor-pointer">
+                            الغاء
+                        </button>
+                        <button @click="$dispatch('confirm_delete')"
+                                class="bg-btn-danger hover:cursor-pointer">
+                            ازالة
+                        </button>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+        <header class="flex w-full flex-col items-center justify-between px-4 pt-6 sm:flex-row">
+            <a href="#" class="mr-13">
+                <img class="h-12"
+                     alt="logo"
+                     src="{{ url_for('static', filename='images/logo-2.png') }}" />
+            </a>
+            <nav class="mt-4 flex w-full items-center justify-between text-2xl sm:w-fit">
+                <a href="{{ url_for('main.home') }}"
+                   class="sm:me-12 md:me-16 border-b-2 border-transparent">الصفحة الرئيسية</a>
+                <a class="sm:me-12 md:me-16 border-b-my-lightblue text-shadow-(--active-nav-link-text-shadow) border-b-2"
+                   href="{{ url_for('auth.login') }}">كلمتي</a>
+                <a class="border-b-2 border-transparent"
+                   href="{{ url_for('auth.account_settings') }}">الاعدادات</a>
+            </nav>
+        </header>
+        <main class="px-2 mt-8 pb-4">
+            {% if extend_error_msg %}
+                <p class="text-center text-3xl text-red-500 mb-4">{{ error_msg }}</p>
+            {% endif %}
+
+            {% if extend_form %}
+                <form method="post"
+                      class="flex flex-col items-center max-w-lg mx-auto mb-16">
+                    {{ extend_form.csrf_token }}
+                    <p class="text-center text-4xl">
+                        باقي في حجزك {{ kelma.reserve_end | remaining_days_ceil }} يوم حتى تاريخ {{ kelma.reserve_end | readable_date }}
+                    </p>
+                    <div x-data="segmented_button('1')" class="w-full">
+                        <div class="bg-fuchsia-800 w-full flex flex-row justify-between items-center rounded mt-6 p-2 {{ 'border-2 border-red-500' if extend_form.reserve_length.errors else '' }}">
+                            {% for choice in extend_form.reserve_length %}
+                                <div class="flex-1">
+                                    {{ choice(class="hidden", **{"x-init": "initInput($el)", "@input": "inputChecked"}) }}
+                                    {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-fuchsia-500 rounded' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl h-full`"}) }}
+                                </div>
+                            {% endfor %}
+                        </div>
+                        {% if extend_form.reserve_length.errors %}
+                            <p class="text-xl text-red-500">{{ extend_form.reserve_length.errors[0] }}</p>
+                        {% endif %}
+                        <p x-text="`السعر ${ current_checked_value * {{ price_for_month }} } ج.م`"
+                           class="text-5xl text-center mt-6  text-fuchsia-200">
+                        </p>
+                    </div>
+                    {{ extend_form.extend(class='bg-btn-main mt-8 block') }}
+                </form>
+            {% endif %}
+
+            {% if error_msg %}
+                <p class="text-center text-3xl text-red-500 mb-4">{{ error_msg }}</p>
+            {% endif %}
+
+            <form action=""
+                  method="post"
+                  enctype="multipart/form-data"
+                  class="flex flex-col items-center max-w-lg mx-auto w-full"
+                  x-ref="form"
+                  novalidate>
+                {{ form.csrf_token }}
+                <div class="{{ 'relative overflow-hidden bg-black' | add_if_errors('border border-red-500', form.image, error_msg) }}"
+                     x-data="image_select({{ '\'' ~ kelma.image_url ~ '\'' if kelma else null }})"
+                     @mouseenter="hovered=true"
+                     @mouseleave="hovered=false">
+                    {{ form.image.label(class="absolute w-full h-full left-0 top-0 rounded-full cursor-pointer") }}
+                    <img x-show="image_data"
+                         :src="image_data ?? ''"
+                         class="w-42 pointer-events-none"
+                         alt="">
+                    <div x-show="hovered || image_data == null"
+                         :class="`${image_data == null ? 'bg-my-black-lighter w-32 h-32' : 'bg-my-lightblue/50 absolute w-full h-full left-0 top-0'} flex flex-col justify-center items-center pointer-events-none`">
+                        <img class="w-8"
+                             src="{{ url_for('static', filename='images/camera.png') }}"
+                             alt="">
+                        <span class="pt-1 text-xl">اختر صوره</span>
+                    </div>
+                    {{ form.image(class="hidden", accept=images_mimes, capture='user', **{'@input':'updateSelect($el.files[0])'}) }}
+                </div>
+                {% if form.image.errors %}
+                    <p class="text-xl text-red-500">{{ form.image.errors[0] }}</p>
+                {% endif %}
+                {{ form.display_name(class='input-field mt-6' | add_if_errors('border-red-500 border-1', form.display_name, error_msg) ,
+                placeholder='اسم العرض') }}
+                {% if form.display_name.errors %}
+                    <p class="text-xl text-red-500">{{ form.display_name.errors[0] }}</p>
+                {% endif %}
+                {{ form.content(class='input-field mt-6 h-50' | add_if_errors('border-red-500 border-1', form.content, error_msg) ,
+                placeholder='المحتوى') }}
+                {% if form.content.errors %}
+                    <p class="text-xl text-red-500">{{ form.content.errors[0] }}</p>
+                {% endif %}
+                {% if not kelma or kelma.normal %}
+                    <div x-data="segmented_button('{{ 'top_twenty' if not kelma and top_twenty_allowed else 'normal' }}')"
+                         :class="`${current_checked_value == 'top_twenty' ? 'bg-fuchsia-800' : 'bg-my-black-lighter'} {{ 'border-2 border-red-500' if form.kelma_type.errors else '' }} max-w-sm w-full flex flex-row justify-between items-stretch rounded mt-6 p-2`"
+                         x-effect="current_checked_value == 'top_twenty' ? $dispatch('top_twenty_selected') : $dispatch('top_twenty_deselected')">
+                        {% for choice in form.kelma_type %}
+                            <div class="flex-1">
+                                {% if loop.index0 == 0 %}
+                                    {{ choice(class="hidden", **{"x-init":"initInput($el);", "@input": "inputChecked"}) }}
+                                    {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-my-black-lighter-2' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl rounded h-full after-content-['⭐']`" }) }}
+                                {% elif loop.index0 == 1 %}
+                                    {% if top_twenty_allowed %}
+                                        {{ choice(class="hidden", **{"x-init":"initInput($el);", "@input": "inputChecked"}) }}
+                                        {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-fuchsia-500' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl rounded h-full`" }) }}
+                                    {% else %}
+                                        {{ choice(disabled="", class="hidden", **{"x-init":"initInput($el);", "@input": "inputChecked"}) }}
+                                        {{ choice.label(class="text-neutral-700 py-1 select-none block text-center w-full text-3xl rounded h-full") }}
+                                    {% endif %}
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                    <div class="w-full max-w-sm">
+                        {% if form.kelma_type.errors %}
+                            <p class="text-xl text-red-500">{{ form.kelma_type.errors[0] }}</p>
+                        {% endif %}
+                    </div>
+                    <div x-data="{ include: null }"
+                         x-show="include"
+                         @top_twenty_selected.window="include=true"
+                         @top_twenty_deselected.window="include=false"
+                         class="w-full max-w-sm">
+                        <template x-if="include">
+                            <div x-data="segmented_button('1')">
+                                <div class="bg-fuchsia-800 w-full flex flex-row justify-between items-center rounded mt-6 p-2 {{ 'border-2 border-red-500' if form.reserve_length.errors else '' }}">
+                                    {% for choice in form.reserve_length %}
+                                        <div class="flex-1">
+                                            {{ choice(class="hidden", **{"x-init": "initInput($el)", "@input": "inputChecked"}) }}
+                                            {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-fuchsia-500 rounded' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl h-full`"}) }}
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.reserve_length.errors %}
+                                    <p class="text-xl text-red-500">{{ form.reserve_length.errors[0] }}</p>
+                                {% endif %}
+                                <p x-text="`السعر ${ current_checked_value * {{ price_for_month }} } ج.م`"
+                                   class="text-5xl text-center mt-6 mb-6 text-fuchsia-200">
+                                </p>
+                                <p x-text="`هذا الحجز لمده ${pluralize('شهر', 'أشهر', current_checked_value)} فقط ولا يتم تجديده تلقائيا حتي تفعل أنت ذلك.`"
+                                   class="text-center mt-6 text-2xl text-my-gray-lighter">
+                                </p>
+                            </div>
+                        </template>
+                    </div>
+                {% endif %}
+                {% if (not kelma or kelma.normal) and not top_twenty_allowed %}
+                    <p class="text-2xl text-center mt-6 mb-6 text-neutral-300">
+                        قائمة اول 20 كلمة ممتلئه حاليا ولكن سيكون هناك مكان فارغ ابتداءا من
+                        {{ first_available_date | readable_date }}
+                    </p>
+                {% endif %}
+                {% if not kelma %}
+                    {{ form.create(class='bg-btn-main mt-8 block') }}
+                {% else %}
+                        {{ form.edit(class='bg-btn-main block mt-8') }}
+                        {{ form.delete(class='bg-btn-danger block mt-4', **{"x-data": "",
+                                                "@click.prevent": "showDeleteKelmaDialog=true;",
+                                                "@confirm_delete.window": "$refs.form.requestSubmit($el)"
+                                                }) }}
+                {% endif %}
+            </form>
+        </main>
+        <script src="{{ url_for('static', filename='js/image_select.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/segmented_button.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/pluralize.js') }}"></script>
+    </body>
+</html>

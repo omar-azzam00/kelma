@@ -1,0 +1,16 @@
+# production
+flask
+Flask-SQLAlchemy
+pymysql
+cryptography
+requests
+Pillow
+flask_wtf
+more_itertools
+flask_mail
+email_validator
+
+# testing
+pytest
+bs4
+selenium

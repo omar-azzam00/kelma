@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+      class="xl:text[20px] sm:text-[17.5px] lg:text-[19px] text-[15.5px]">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>كلمة</title>
+        <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+              rel="stylesheet" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/payment-redirect.css') }}" />
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body class="bg-my-black min-h-screen bg-cover bg-no-repeat leading-none text-white">
+        <section id="first_section"
+                 class="flex flex-col justify-between items-center relative text-center min-h-screen bg-[url('../images/home-in-20-bg-.5.png')] bg-cover bg-no-repeat px-4 sm:bg-[url('../images/home-in-20-bg.png')] xl:bg-[url('../images/home-in-20-bg-2.png')]">
+            <header class="flex w-full flex-col items-center justify-between px-4 pt-6 sm:flex-row">
+                <a href="#" class="mr-13">
+                    <img class="h-12"
+                         alt="logo"
+                         src="{{ url_for('static', filename='images/logo-2.png') }}" />
+                </a>
+                <nav class="mt-4 flex w-full items-center justify-between text-2xl sm:w-fit">
+                    <a href="{{ url_for('main.home') }}"
+                       class="sm:me-12 md:me-16 border-b-2 border-b-my-lightblue text-shadow-(--active-nav-link-text-shadow)">الصفحة الرئيسية</a>
+                    <a class="sm:me-12 md:me-16  border-b-2 border-transparent"
+                       href="{{ url_for('main.kelma_get') }}">كلمتي</a>
+                    <a class="border-b-2 border-transparent" href="#">الاعدادات</a>
+                </nav>
+            </header>
+            <div>
+                <p class="text-5xl mb-8  max-w-xl">{{ msg }}</p>
+                {% if redirect_to_home %}
+                    <p x-data="{ seconds: 10 }"
+                       x-init="setInterval(() => {seconds > 0 && seconds--}, 1000)"
+                       x-effect="seconds <= 0 && redirect_to_home()"
+                       x-text="`سيتم اعادة توجيهك للصفحة الرئيسيه في خلال ${seconds} ثواني`"
+                       class="mb-4 text-3xl text-neutral-300"></p>
+                    <a class="bg-btn-main" href="{{ url_for('main.home') }}">الذهاب للصفحة الرئيسية</a>
+                {% else %}
+                    <p class="text-3xl">
+                        اذا كنت تواجه مشكلة تواصل مع
+                        <a href="#" class="underline text-my-lightblue">الدعم</a>
+                    </p>
+                {% endif %}
+            </div>
+            <div></div>
+        </section>
+        <script>
+            function redirect_to_home()
+            {
+                let new_url = new URL(window.location);
+                new_url.pathname = "/"
+                window.location.href = new_url.toString()
+            }
+        </script>
+    </body>
+</html>

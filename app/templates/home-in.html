@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>كلمة - الصفحة الرئيسية</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Qahiri&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/reset.css')}}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/home-in.css')}}"
+    />
+  </head>
+  <body>
+    <section class="top-20-section">
+      <header>
+        <a href="#">
+          <img
+            class="logo"
+            src="{{ url_for('static', filename='images/logo.png')}}"
+          />
+        </a>
+        <nav class="nav">
+          <a href="#" class="active-nav-item">الصفحة الرئيسية</a>
+          <a href="#">كلمتي</a>
+          <a href="#">الحجز</a>
+          <a href="#">اعدادات الحساب</a>
+        </nav>
+      </header>
+      <p class="main-title">👑ال 20 كلمة لليوم🎲</p>
+      <p class="date"></p>
+      <div class="top-20-kelmas"></div>
+      <div class="seperator"></div>
+      <p class="secondary-text">
+        قد تظهر هنا عشوائيا يوما ما الا اني لا استطيع ضمان ذلك! أو يمكنك الحصول
+        على ظهورك بشكل ثابث لأي مده تريد مقابل مبلغ رمزي!
+      </p>
+      <a href="#" class="main-btn book-btn">احجز الآن</a>
+    </section>
+    <div class="section-seperator"></div>
+    <main>
+      <p class="all-kelmas-title">كل الكلمات</p>
+      <form method="POST" class="search">
+        {{ form.csrf_token }}
+        <div class="form-field">
+          {{ form.search_text( class="field-input" ~ (" field-input-error" if
+          form.search_text.errors else ""),
+          placeholder=form.search_text.label.text) }} {% if
+          form.search_text.errors %}
+          <p class="field-error-msg">{{form.search_text.errors[0]}}</p>
+          {% endif %}
+        </div>
+        <div class="checkboxes">
+          <div class="checkbox">
+            {{ form.by_username.label }} {{ form.by_username }}
+          </div>
+          <div class="checkbox">
+            {{ form.by_content.label }} {{ form.by_content }}
+          </div>
+        </div>
+      </form>
+      <div class="all-kelmas"></div>
+      <div class="show-more-loader">
+        <img src="{{url_for('static', filename='images/moon.png')}}" alt="" />
+      </div>
+      <button class="show-more show">
+        <span>أظهر المزيد</span>
+        <img
+          src="{{url_for('static', filename='images/arrow-down.png')}}"
+          alt=""
+        />
+      </button>
+      <footer>
+        <a href="#">الأسئله الشائعه</a>
+        <a href="#">تواصل معنا</a>
+      </footer>
+    </main>
+    <a href="{{ url_for('auth.register')}}" class="main-btn ultimate-action-btn"
+      >أنشئ كلمتك مجانا</a
+    >
+    <script src="{{url_for('static', filename='js/home-in.js')}}"></script>
+  </body>
+</html>

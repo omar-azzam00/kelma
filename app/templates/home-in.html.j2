@@ -1,0 +1,218 @@
+{# TODO: Show sort when user kelma is viewed also show a button to edit the kelma #}
+
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+      class="xl:text[20px] sm:text-[17.5px] lg:text-[19px] text-[15.5px]">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>كلمة - الصفحة الرئيسية</title>
+        <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+              rel="stylesheet" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/home-in.css') }}" />
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body x-data='{ userKelma: {{ kelma_json }}, userKelmaElem: null, openedKelma: null, hideOpenedKelma: true }'
+          @keydown.escape="hideOpenedKelma = true;"
+          class="bg-my-black min-h-screen bg-cover bg-no-repeat leading-none text-white">
+        <div class="fixed w-full h-full  bg-black/50 z-10 flex justify-center items-center p-8"
+             x-show="!hideOpenedKelma"
+             role="dialog"
+             x-transition
+             x-cloak
+             tabindex="-1">
+            <div class="bg-my-black-lighter p-4 rounded w-full max-w-xl h-content max-h-full overflow-y-auto"
+                 @click.outside="hideOpenedKelma = true;">
+                <button class="block bg-none border-none mr-auto cursor-pointer mb-8"
+                        @click="hideOpenedKelma = true;">
+                    <img class="w-6"
+                         src="{{ url_for('static', filename='images/close.png') }}"
+                         alt="Close Button">
+                </button>
+                <div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-8 sm:items-start">
+                    <img :class="`w-full flex-1 max-w-52 rounded ${openedKelma?.sort <= 20 ? 'border-4 border-my-golden ' : ''} ${openedKelma && userKelma && openedKelma.id === userKelma.id ? 'border-4 border-my-lightblue' : ''} `"
+                         :src="openedKelma?.image_url"
+                         alt="Kelma Image"
+                         x-cloak>
+                    <div class="flex-1 sm:mt-7 w-full">
+                        <div class="text-center sm:text-right">
+                            <p class="text-3xl" x-text="openedKelma?.display_name"></p>
+                            <p dir="ltr" class="text-2xl text-neutral-400" x-text="`#${openedKelma?.username}`"></p>
+                        </div>
+                        <p class="text-start mt-4 text-2xl text-neutral-200"
+                           x-text="openedKelma?.content"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template id="topKelmaTemplate">
+            <div>
+                <div x-data="{ hovered: false }"
+                     @mouseenter="hovered=true"
+                     @mouseleave="hovered=false"
+                     x-init="!userKelmaElem && kelma.id === userKelma?.id ? userKelmaElem = $el : null"
+                     @click="openedKelma = kelma; hideOpenedKelma = false;"
+                     :class="`rounded relative w-full h-full ${kelma.id === userKelma?.id ? 'border-4 border-my-lightblue' : 'border-3 border-my-golden'}`">
+                    <img class="rounded w-full h-full"
+                         :src="kelma.image_url"
+                         alt="Kelma img"
+                         x-cloak>
+                    <div x-show="hovered"
+                         x-transition
+                         class="absolute w-full h-full bg-my-lightblue/35 top-0 right-0 rounded">
+                    </div>
+                </div>
+            </div>
+        </template>
+        <template id="kelmaTemplate">
+            <div>
+                <div x-data="{ hovered: false }"
+                     @mouseenter="hovered=true"
+                     @mouseleave="hovered=false"
+                     x-init="!userKelmaElem && kelma.id === userKelma?.id ? userKelmaElem = $el : null"
+                     @click="openedKelma = kelma; hideOpenedKelma = false;"
+                     :class="`rounded relative w-full h-full ${kelma.id === userKelma?.id ? 'border-3 border-my-lightblue' : ''}`">
+                    <img class="rounded w-full h-full"
+                         :src="kelma.image_url"
+                         alt="Kelma img"
+                         x-cloak>
+                    <div x-show="hovered"
+                         x-transition
+                         class="absolute w-full h-full bg-my-lightblue/35 top-0 right-0 rounded">
+                    </div>
+                </div>
+            </div>
+        </template>
+        <section id="first_section"
+                 class="bg-[url('../images/home-in-20-bg-.5.png')] bg-cover bg-no-repeat px-4 pb-16 sm:bg-[url('../images/home-in-20-bg.png')] xl:bg-[url('../images/home-in-20-bg-2.png')]">
+            <header class="flex w-full flex-col items-center justify-between px-4 pt-6 sm:flex-row">
+                <a href="#" class="mr-13">
+                    <img class="h-12"
+                         alt="logo"
+                         src="{{ url_for('static', filename='images/logo-2.png') }}" />
+                </a>
+                <nav class="mt-4 flex w-full items-center justify-between text-2xl sm:w-fit">
+                    <a href="{{ url_for('main.home') }}"
+                       class="sm:me-12 md:me-16 border-b-2 border-b-my-lightblue text-shadow-(--active-nav-link-text-shadow)">الصفحة الرئيسية</a>
+                    <a class="sm:me-12 md:me-16  border-b-2 border-transparent"
+                       href="{{ url_for('main.kelma_get') }}">كلمتي</a>
+                    <a class="border-b-2 border-transparent" href="{{ url_for('auth.account_settings') }}">الاعدادات</a>
+                </nav>
+            </header>
+            <div class="pt-16 text-center">
+                <p class="text-5xl whitespace-nowrap">
+                    <span class="text-[2.75rem] sm:text-5xl">👑</span>ال 20 كلمة لليوم<span class="text-[2.75rem] sm:text-5xl">🎲</span>
+                </p>
+                <p x-data
+                   x-text="getFormattedDate()"
+                   class="mt-2 text-2xl text-neutral-300"></p>
+                <div x-data="kelmas_state('#topKelmasContainer', '#topKelmaTemplate', 0, 20)"
+                     x-init="await addKelmas()">
+                    <template x-if="empty">
+                        <p class="text-center mt-8 text-2xl text-neutral-300">
+                            لا يوجد كلمات هنا حتي الان!
+                        </p>
+                    </template>
+                    <div x-show="!empty"
+                         id="topKelmasContainer"
+                         class="mt-8 grid grid-cols-[repeat(auto-fill,minmax(6rem,1fr))] gap-3 hover:cursor-pointer">
+                        <!-- Here we insert Kelma Template -->
+                    </div>
+                    <img x-show="loading"
+                         class="w-12 mx-auto block border border-white rounded-full shadow-(--loader-shadow) animate-spin"
+                         src="{{ url_for('static', filename='images/moon.png') }}"
+                         alt="Loader">
+
+                    {% if kelma and kelma.premium %}
+                        <p x-show="!loading" class="text-cent mt-8 text-2xl text-neutral-300">
+                            شعور رائع ان تكون دائما فالقمة أليس كذلك ؟ 🤪
+                        </p>
+                    {% elif kelma and kelma.sort <= 20 %}
+                        <p x-show="!loading" class="text-cent mt-8 text-2xl text-neutral-300">
+                            🎉🎉 انك محظوظ اليوم لقد ظهرت في أول 20 كلمة! 🎉🎉
+                        </p>
+                    {% else %}
+                        <div>
+                            <p x-show="!loading && !empty"
+                               class="text-cent mt-8 text-2xl text-neutral-300">
+                                قد تظهر هنا عشوائيا يوما ما الا اني لا استطيع ضمان ذلك! أو يمكنك
+                                الحصول على ظهورك بشكل ثابث لأي مده تريد مقابل مبلغ رمزي!
+                            </p>
+                            <a x-show="!loading && !empty"
+                               class="bg-btn-main w-fit mx-auto block mt-4"
+                               href="{{ url_for('main.kelma_get') }}">أحجز الان</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+        <div class="absolute h-16 w-full"
+             style="background-image: linear-gradient(transparent, black, transparent);
+                    transform: translateY(-50%)"></div>
+        <main class="px-2 bg-[url('../images/home-main-bg-.5.png')] bg-cover bg-no-repeat pt-16 sm:bg-[url('../images/home-main-bg.png')] xl:bg-[url('../images/home-main-bg-2.png')]">
+            <p class="text-center text-5xl mb-8">كل الكلمات</p>
+            {# <form method="POST" class="mt-4 w-full max-w-lg mx-auto px-3 mb-4">
+                {{ form.csrf_token }}
+                <div class="form-field mb-8">
+                    {{ form.search_text(class="input-field" ~ (" border-red-500 border-1"
+                                        if form.search_text.errors else "") ,
+                    placeholder=form.search_text.label.text) }}
+                    {% if form.search_text.errors %}
+                        <p class="field-error-msg">{{ form.search_text.errors[0] }}</p>
+                    {% endif %}
+                </div>
+            </form> #}
+            <!-- its 20 as indexing starts from 0 -->
+            <div x-data="kelmas_state('#allKelmasContainer', '#kelmaTemplate')"
+                 x-init="addKelmas()">
+                <template x-if="empty">
+                    <p class="text-center mt-8 text-2xl text-neutral-300">
+                        لا يوجد كلمات هنا حتي الان!
+                    </p>
+                </template>
+                <div x-show="!empty"
+                     id="allKelmasContainer"
+                     class="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 mb-4 hover:cursor-pointer">
+                    <!-- Here we use the template to insert -->
+                </div>
+                <img x-show="loading"
+                     class="w-12 mx-auto block border border-white rounded-full shadow-(--loader-shadow) animate-spin"
+                     src="{{ url_for('static', filename='images/moon.png') }}"
+                     alt="Loader">
+                <button id="showMoreBtn"
+                        x-show="!finished && !loading"
+                        class="flex gap-2 items-center text-2xl hover:cursor-pointer mx-auto pr-4">
+                    <span @click="addKelmas()">أظهر المزيد</span>
+                    <img class="w-4"
+                         src="{{ url_for('static', filename='images/arrow-down.png') }}"
+                         alt="">
+                </button>
+            </div>
+            <footer class="pt-8 pb-4 flex justify-between items-center underline text-xl">
+                <a href="#">الأسئله الشائعه</a>
+                <a href="#">تواصل معنا</a>
+            </footer>
+        </main>
+        {% if kelma %}
+            <button class="bg-btn-secondary fixed bottom-2 right-3/6 translate-x-1/2 hover:cursor-pointer shadow-(--main-action-btn-shadow) mr-[6px]"
+                    @click="if(userKelmaElem){scrollToElem(userKelmaElem)} else{openedKelma = userKelma; hideOpenedKelma = false}">
+                أرني كلمتي
+            </button>
+        {% else %}
+            <a x-data="{ show: false, first_section: document.querySelector('#first_section') }"
+               @scroll.window="(window.scrollY >= first_section.offsetHeight - 128 ||  window.scrollY + window.innerHeight >= document.body.clientHeight - 1) ? show = true : show = false;"
+               x-transition
+               x-show="show"
+               href="{{ url_for('main.kelma_get') }}"
+               class="bg-btn-main fixed bottom-2 right-3/6 translate-x-1/2 hover:cursor-pointer shadow-(--main-action-btn-shadow) mr-[6px]">أنشئ كلمتك</a>
+        {% endif %}
+
+        <script src="{{ url_for('static', filename='js/get_formatted_date.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/get_kelmas.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/kelmas_state.js')}}"></script>
+        <script src="{{ url_for('static', filename='js/scroll_to_elem.js')}}"></script>
+    </body>
+</html>

@@ -1,0 +1,27 @@
+button, input[type="submit"] {
+  @apply hover:cursor-pointer;
+}
+
+[x-cloak] {
+  display: none !important;
+}
+
+:root {
+  /* x y blur spread color */
+  --loader-shadow: 0 0 20px 0 var(--color-my-lightblue);
+  --main-action-btn-shadow: 0 0 10px 0 var(--color-my-golden);
+  --active-nav-link-text-shadow: 0 0 7px var(--color-my-lightblue);
+}
+
+@theme {
+  --default-font-family: "Lateef";
+  --color-my-lightblue: #14c1e3;
+  --color-my-gray: #969696;
+  --color-my-gray-lighter: #e9e9e9;
+  --color-my-black: #151515;
+  --color-my-black-lighter: #272727;
+  --color-my-black-lighter-2: #6a6a6a;
+  --color-my-golden: #d9962a;
+
+  --animate-spin: spin 2s linear infinite;
+}

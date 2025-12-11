@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+      class="sm:text-[17.5px] lg:text-[19px] xl:text[20px] text-[15.5px]">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>كلمة - اعدادات الحساب</title>
+        <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+              rel="stylesheet" />
+        <link rel="stylesheet"
+              href="{{ url_for('static', filename='css/account_settings.css') }}" />
+        <script defer
+                src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    </head>
+    <body class="min-h-screen bg-my-black bg-[url('../images/auth-bg-.5.png')] bg-cover bg-no-repeat leading-none text-white sm:bg-[url('../images/auth-bg.png')] xl:bg-[url('../images/auth-bg-2.png')]"
+          x-data="{ openedDialogForm: {{ '\'change_password\'' if err_in_password_form else 'null' }} }">
+        <div class="fixed w-full h-full  bg-black/50 z-10 flex justify-center items-center p-8"
+             x-show="openedDialogForm"
+             role="dialog"
+             x-transition
+             x-cloak
+             tabindex="-1">
+            <div class="bg-my-black-lighter p-4 rounded w-full max-w-xl h-content max-h-full overflow-y-auto"
+                 @click.outside="openedDialogForm = null;">
+                <button class="block bg-none border-none mr-auto cursor-pointer mb-8"
+                        @click="openedDialogForm = null;">
+                    <img class="w-6"
+                         src="{{ url_for('static', filename='images/close.png') }}"
+                         alt="Close Button">
+                </button>
+                <template x-if="openedDialogForm == 'logout'">
+                    <div class="text-center">
+                        <p class="text-4xl mb-8">هل أنت متأكد من أنك تريد تسجيل الخروج ؟</p>
+                        <button class="bg-btn-cancel me-1 hover:cursor-pointer"
+                                @click="openedDialogForm = null">الغاء</button>
+                        <form class="inline" method="post" novalidate>
+                            {{ logout_form.csrf_token() }}
+                            {{ logout_form.logout(class="bg-btn-main bg-red-400 hover:cursor-pointer") }}
+                        </form>
+                    </div>
+                </template>
+                <template x-if="openedDialogForm == 'delete_account'">
+                    <div class="text-center">
+                        <p class="text-4xl mb-8">
+                            سوف تفقد اشتراكك وكلمتك هل انت متأكد من انك تريد حذف الحساب ؟
+                        </p>
+                        <button class="bg-btn-cancel me-1 hover:cursor-pointer"
+                                @click="openedDialogForm = null">الغاء</button>
+                        <form class="inline" method="post" novalidate>
+                            {{ delete_acc_form.csrf_token() }}
+                            {{ delete_acc_form.delete(class="bg-btn-main bg-red-600 hover:cursor-pointer") }}
+                        </form>
+                    </div>
+                </template>
+                <template x-if="openedDialogForm == 'change_password'">
+                    <div class="text-center">
+                        <form class="inline" method="post" novalidate>
+                            <p class="text-4xl mb-8">تغيير كلمة المرور</p>
+                            {% if err_in_password_form %}
+                                {% with msgs=get_flashed_messages() %}
+                                    {% for msg in msgs %}
+                                        <p class="text-red-500 text-4xl mb-4 text-center">{{ msg }}</p>
+                                    {% endfor %}
+                                {% endwith %}
+                            {% endif %}
+                            {% for field in edit_pass_form %}
+                                {% if field.type == "CSRFTokenField" %}
+                                    {{ field() }}
+                                {% elif field.type == "PasswordField" %}
+                                    {{ field(class="input-field bg-neutral-900 mt-2" | add_if_errors("border-red-500 border-1", field, error_msg) ,
+                                    placeholder=field.label.text) }}
+                                    {% if field.errors %}
+                                        <p class="text-xl text-red-500">{{ field.errors[0] }}</p>
+                                    {% endif %}
+                                {% elif field.type == "SubmitField" %}
+                                    {{ field(class="bg-btn-main mt-2") }}
+                                {% endif %}
+                            {% endfor %}
+                        </form>
+                    </div>
+                </template>
+            </div>
+        </div>
+        <header class="px-6 pt-6 flex flex-col items-center justify-between sm:flex-row">
+            <a href="#" class="mr-13">
+                <img class="h-12"
+                     alt="logo"
+                     src="{{ url_for('static', filename='images/logo-2.png') }}" />
+            </a>
+            <nav class="mt-4 flex w-full items-center justify-between text-2xl sm:w-fit">
+                <a href="{{ url_for('main.home') }}"
+                   class="sm:me-12 md:me-16 border-b-2 border-transparent">الصفحة الرئيسية</a>
+                <a class="sm:me-12 md:me-16  border-b-2 border-transparent"
+                   href="{{ url_for('main.kelma_get') }}">كلمتي</a>
+                <a class="border-b-2 border-transparent border-b-my-lightblue text-shadow-(--active-nav-link-text-shadow)"
+                   href="{{ url_for('auth.account_settings') }}">الاعدادات</a>
+            </nav>
+        </header>
+        <main class="mt-11 flex flex-col items-center px-4">
+            {% if not err_in_password_form %}
+                {% with msgs=get_flashed_messages(with_categories=true) %}
+                    {% for category, msg in msgs %}
+                        <div class="text-4xl mb-4 text-center">
+                            {% if category == "success" %}
+                                <p class="text-green-500">{{ msg }}</p>
+                            {% elif category == "error" %}
+                                <p class="text-red-500">{{ msg }}</p>
+                            {% else %}
+                                <p>{{ msg }}</p>
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                {% endwith %}
+            {% endif %}
+            <p class="text-5xl mb-8">اعدادات الحساب</p>
+            <form class="w-full max-w-lg" method="post" novalidate>
+                {% for field in edit_acc_form %}
+                    {% if field.type == "CSRFTokenField" %}
+                        {{ field() }}
+                    {% elif field.type in ["StringField", "EmailField", "PasswordField"] %}
+                        {{ field.label(class="block mb-1 text-3xl text-neutral-400") }}
+                        {{ field(class="input-field mb-2" | add_if_errors("border-red-500 border-1", field, error_msg) ,
+                        placeholder=field.label.text) }}
+                        {% if field.errors %}
+                            <p class="text-xl text-red-500">{{ field.errors[0] }}</p>
+                        {% endif %}
+                    {% elif field.type == "SubmitField" %}
+                        {{ field(class="bg-btn-main block mx-auto mt-2 hover:cursor-pointer") }}
+                    {% endif %}
+                {% endfor %}
+            </form>
+            <p class="text-5xl mt-8">اخرى</p>
+            <button class="bg-btn-main mt-8" @click="openedDialogForm='change_password'">
+                تغيير كلمة المرور
+            </button>
+            <button class="bg-btn-main bg-red-400 mt-4"
+                    @click="openedDialogForm='logout'">تسجيل خروج</button>
+            <button class="bg-btn-main bg-red-600 mt-4 mb-8"
+                    @click="openedDialogForm='delete_account'">
+                حذف الحساب
+            </button>
+        </main>
+    </body>
+</html>

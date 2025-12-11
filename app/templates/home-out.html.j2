@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="ar"
+      dir="rtl"
+      class="xl:text[20px] sm:text-[17.5px] lg:text-[19px] text-[15.5px]">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>كلمة - الصفحة الرئيسية</title>
+    <link href="https://fonts.googleapis.com/css2?family=Lateef:wght@400&display=swap"
+          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Reem+Kufi:wght@400&display=swap"
+          rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Qahiri&display=swap"
+          rel="stylesheet" />
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/home-out.css') }}" />
+    <script defer
+            src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  </head>
+  <body x-data="{ openedKelma: null, hideOpenedKelma: true }"
+        class="bg-my-black min-h-screen bg-cover bg-no-repeat leading-none text-white">
+    <div class="fixed w-full h-full  bg-black/50 z-10 flex justify-center items-center p-8"
+         x-show="!hideOpenedKelma"
+         role="dialog"
+         x-transition
+         x-cloak
+         tabindex="-1">
+      <div class="bg-my-black-lighter p-4 rounded w-full max-w-xl h-content max-h-full overflow-y-auto"
+           @click.outside="hideOpenedKelma = true;">
+        <button class="block bg-none border-none mr-auto cursor-pointer mb-8"
+                @click="hideOpenedKelma = true;">
+          <img class="w-6"
+               src="{{ url_for('static', filename='images/close.png') }}"
+               alt="Close Button">
+        </button>
+        <div class="flex flex-col items-center gap-2 sm:flex-row sm:gap-8 sm:items-start">
+          <img :class="`w-full flex-1 max-w-52 rounded ${openedKelma?.sort <= 20 ? 'border-4 border-my-golden ' : ''}`"
+               :src="openedKelma?.image_url"
+               alt="Kelma Image"
+               x-cloak>
+          <div class="flex-1 sm:mt-7 w-full">
+            <div class="text-center sm:text-right">
+              <p class="text-3xl" x-text="openedKelma?.display_name"></p>
+              <p dir="ltr"
+                 class="text-2xl text-neutral-400"
+                 x-text="`#${openedKelma?.username}`"></p>
+            </div>
+            <p class="text-start mt-4 text-2xl text-neutral-200"
+               x-text="openedKelma?.content"></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <template id="kelmaTemplate">
+      <div>
+        <div x-data="{ hovered: false }"
+             @mouseenter="hovered=true"
+             @mouseleave="hovered=false"
+             @click="openedKelma = kelma; hideOpenedKelma = false;"
+             class="rounded relative w-full h-full">
+          <img class="rounded w-full h-full"
+               :src="kelma.image_url"
+               alt="Kelma img"
+               x-cloak>
+          <div x-show="hovered"
+               x-transition
+               class="absolute w-full h-full bg-my-lightblue/35 top-0 right-0 rounded">
+          </div>
+        </div>
+      </div>
+    </template>
+    <section id="first_section"
+             class="relative flex min-h-screen items-center justify-center bg-[url('../images/home-banner-bg-.5.png')] bg-cover bg-no-repeat px-4 pb-8 sm:bg-[url('../images/home-banner-bg.png')] xl:bg-[url('../images/home-banner-bg-2.png')]">
+      <header class="absolute top-0 right-0 flex w-full flex-col items-center justify-between px-4 pt-6 sm:flex-row">
+        <a href="#" class="mr-13">
+          <img class="h-12"
+               alt="logo"
+               src="{{ url_for('static', filename='images/logo-2.png') }}" />
+        </a>
+        <nav class="mt-4 flex w-full items-center justify-between text-2xl sm:w-fit">
+          <a href="{{ url_for('main.home') }}"
+             class="border-b-my-lightblue text-shadow-(--active-nav-link-text-shadow) border-b-2 sm:me-12 md:me-16">الصفحة الرئيسية</a>
+          <a href="{{ url_for('auth.login') }}"
+             class="sm:me-12 md:me-16 border-b-2 border-transparent">تسجيل دخول</a>
+          <a class="border-b-2 border-transparent"
+             href="{{ url_for('auth.register') }}">حساب جديد</a>
+        </nav>
+      </header>
+      <h1 class="max-w-2xl text-center font-[Reem_Kufi] text-5xl leading-normal lg:text-6xl">
+        “<span class="font-[Qahiri] text-[4.25rem] leading-[0] lg:text-7xl">كلمة،</span>
+        فضاء يسمح لصداك بالخلود”
+      </h1>
+    </section>
+    <div class="absolute h-16 w-full"
+         style="background-image: linear-gradient(transparent, black, transparent);
+                transform: translateY(-50%)"></div>
+    <main class="px-2 bg-[url('../images/home-main-bg-.5.png')] bg-cover bg-no-repeat pt-16 sm:bg-[url('../images/home-main-bg.png')] xl:bg-[url('../images/home-main-bg-2.png')]">
+      <p class="text-center text-5xl mb-8">كل الكلمات</p>
+      {# <form method="POST" class="mt-4 w-full max-w-lg mx-auto px-3 mb-4">
+        {{ form.csrf_token }}
+        <div class="form-field mb-8">
+          {{ form.search_text(class="input-field" ~ (" border-red-500 border-1"
+                    if form.search_text.errors else "") ,
+          placeholder=form.search_text.label.text) }}
+          {% if form.search_text.errors %}
+            <p class="field-error-msg">{{ form.search_text.errors[0] }}</p>
+          {% endif %}
+        </div>
+      </form> #}
+      <div x-data="kelmas_state('#allKelmasContainer', '#kelmaTemplate')"
+           x-init="addKelmas()">
+        <template x-if="empty">
+          <p class="text-center mt-8 text-2xl text-neutral-300">
+            لا يوجد كلمات هنا حتي الان!
+          </p>
+        </template>
+        <div x-show="!empty"
+             id="allKelmasContainer"
+             class="grid grid-cols-[repeat(auto-fill,minmax(4rem,1fr))] gap-2 mb-4 hover:cursor-pointer">
+          <!-- Here we use the template to insert -->
+        </div>
+        <img x-show="loading"
+             class="w-12 mx-auto block border border-white rounded-full shadow-(--loader-shadow) animate-spin"
+             src="{{ url_for('static', filename='images/moon.png') }}"
+             alt="Loader">
+        <button id="showMoreBtn"
+                x-show="!finished && !loading"
+                class="flex gap-2 items-center text-2xl hover:cursor-pointer mx-auto pr-4">
+          <span @click="addKelmas()">أظهر المزيد</span>
+          <img class="w-4"
+               src="{{ url_for('static', filename='images/arrow-down.png') }}"
+               alt="">
+        </button>
+      </div>
+      <footer class="pt-8 pb-4 flex justify-between items-center underline text-xl">
+        <a href="#">الأسئله الشائعه</a>
+        <a href="#">تواصل معنا</a>
+      </footer>
+    </main>
+    <a x-data="{ show: false }"
+       @scroll.window="window.scrollY >= 256 || window.scrollY + window.innerHeight >= document.body.clientHeight ? show = true : show = false;"
+       x-transition
+       x-show="show"
+       href="{{ url_for('auth.register') }}"
+       class="bg-btn-main fixed bottom-2 right-3/6 translate-x-1/2 hover:cursor-pointer shadow-(--main-action-btn-shadow) mr-[6px]">انضم الينا الآن</a>
+    <script src="{{ url_for('static', filename='js/get_kelmas.js')}}"></script>
+    <script src="{{ url_for('static', filename='js/kelmas_state.js')}}"></script>
+  </body>
+</html>

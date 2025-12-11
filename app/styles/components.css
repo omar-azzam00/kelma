@@ -1,0 +1,20 @@
+@layer components {
+  .input-field {
+    @apply bg-my-black-lighter/75 w-full rounded-md py-2.5 pr-4 text-2xl outline-none;
+  }
+  .input-field::placeholder {
+    @apply text-my-gray text-2xl;
+  }
+  .bg-btn-main {
+    @apply bg-my-golden rounded-full px-6 py-2 text-2xl text-white;
+  }
+  .bg-btn-secondary {
+    @apply bg-my-lightblue rounded-full px-6 py-2 text-2xl text-white;
+  }
+  .bg-btn-danger {
+    @apply rounded-full bg-red-500 px-6 py-2 text-2xl text-white;
+  }
+  .bg-btn-cancel {
+    @apply rounded-full bg-neutral-600 px-6 py-2 text-2xl text-white;
+  }
+}
