@@ -89,14 +89,17 @@ class KelmasSearchForm(FlaskForm):
 MAX_MBS = 5
 MAX_SIZE = MAX_MBS * 1000 * 1000
 
+# max length for extension is 4 chars, or edit image_fn column length.
 IMAGE_TYPES = {
     "jpg": "image/jpeg",
     "jpe": "image/jpeg",
     "jpeg": "image/jpeg",
     "png": "image/png",
-    "svg": "image/svg+xml",
+    # PIL doesn't support svg
+    # "svg": "image/svg+xml",
     "bmp": "image/bmp",
     "webp": "image/webp",
+    "avif": "image/avif"
 }
 
 IMAGE_EXTS = unique_everseen(IMAGE_TYPES.keys())
