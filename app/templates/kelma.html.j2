@@ -125,7 +125,7 @@
                              alt="">
                         <span class="pt-1 text-xl">اختر صوره</span>
                     </div>
-                    {{ form.image(class="hidden", accept=images_mimes, capture='user', **{'@input':'updateSelect($el.files[0])'}) }}
+                    {{ form.image(class="hidden", accept=images_mimes, **{'@input':'updateSelect($el.files[0])'}) }}
                 </div>
                 {% if form.image.errors %}
                     <p class="text-xl text-red-500">{{ form.image.errors[0] }}</p>
