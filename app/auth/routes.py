@@ -24,10 +24,6 @@ from app.utils.main import delete_kelma
 from flask import request
 from datetime import datetime, timedelta
 
-# TODO: Add show password option in register, login, change password, reset password
-# TODO: Add confirm password field in register, change password
-
-
 @auth.route("/register", methods=["GET", "POST"])
 def register():
     form = RegistrationForm()

@@ -7,11 +7,6 @@ from sqlalchemy.orm import DeclarativeBase
 from app.utils.api_tools import UltraJSONProvider
 from flask_mail import Mail
 
-# TODO: Foreign Keys should only reference primary keys on other tables 
-# TODO: we should use logging through all the app so we can track what is happening
-# TODO: we should use whatsapp or email notifications for situations which might require something like this
-# TODO: we should create an admin web page or admin command line application so we can handle errors and manually change app data if needed.
-
 class Base(DeclarativeBase):
     pass
 

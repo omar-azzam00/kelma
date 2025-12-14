@@ -39,8 +39,9 @@ def get_kelmas_local(start, size, page):
     return result
 
 
-# TODO: NEW COMMUNICATION MODEL
 """
+THIS IS THE NEW COMMUNICATION MODEL 
+
 1- at any communication the server returns an id list with its last update date or a version indicator
 2- the client can then request this easily with an id list if he doesn't have a specific updated kelma
 """

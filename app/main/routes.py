@@ -47,18 +47,6 @@ from flask_wtf.file import FileRequired
 from werkzeug.datastructures import FileStorage
 from sqlalchemy import select
 
-# TODO: IMPLEMENT THE SEARCH FUNCTIONALITY
-
-# TODO: The preview isn't an honest representation of what the image will look like on kelmas board,  how can we fix this ?
-# maybe make js logic to emulate how PIL generates our image
-# or just send image to server, server perform its transformations replies back with the output version.
-
-# TODO: We should look for a way to cache premium_count, all_count and first_available_date as long as there is
-# no changes are made to the db, if sqlalchemy can provide us with this functionality so it will be so nice.
-# TODO: Can't we actually keep a table in the db which we update manually to provide us with this info without
-# the need to run expensive queries server-side ?
-
-
 @main.route("/")
 def home():
     # form = KelmasSearchForm()
@@ -279,7 +267,6 @@ def payment_redirect():
 @csrf.exempt
 @paymob_hmac_security
 def payment_process():
-    # TODO: Implement the saved card functionality.
     if request.json["type"] == "TOKEN":
         ...
     elif request.json["type"] == "TRANSACTION" and request.json["obj"]["is_voided"]:
@@ -287,11 +274,6 @@ def payment_process():
     elif request.json["type"] == "TRANSACTION" and request.json["obj"]["is_refunded"]:
         ...
     elif request.json["type"] == "TRANSACTION" and request.json["obj"]["success"]:
-        # TODO: SECURITY RISK, SOMEONE CAN KEEP SENDING THE SAME POST REQUEST SO
-        # WE HAVE TO MAKE SURE THAT THE ORDER_ID IS NOT ALREADY IN DB
-        # WE SHOULDN'T BE AFRAID FROM MANIPULATING IT AS THIS WILL ALREADY BREAK
-        # THE HMAC SECURITY
-
         order_id = request.json["obj"]["order"]["id"]
         user_id = request.json["obj"]["payment_key_claims"]["extra"]["user_id"]
         email = request.json["obj"]["order"]["shipping_data"]["email"]
