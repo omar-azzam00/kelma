@@ -1,5 +1,6 @@
 import os
 from datetime import timedelta
+from secrets import token_hex
 from app.secrets import DATABASE_URI, TESTING_DATABASE_URI, MAIL_USERNAME, MAIL_PASSWORD
 
 class Dev_Config:
@@ -7,7 +8,8 @@ class Dev_Config:
         self.PROFILE_IMGS_PATH_OS = os.path.join(*self.PROFILE_IMGS_PATH)
         self.PROFILE_IMGS_PATH_URL = '/'.join(self.PROFILE_IMGS_PATH)
 
-    SECRET_KEY = "REDACTED"
+    SECRET_KEY = os.getenv('SECRET_KEY', token_hex())
+    SECRET_KEY_FALLBACKS = []
     SQLALCHEMY_DATABASE_URI = DATABASE_URI
     SQLALCHEMY_ECHO = True
     PERMANENT_SESSION_LIFETIME = timedelta(days=181)  
