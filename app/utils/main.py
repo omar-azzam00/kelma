@@ -166,6 +166,7 @@ def update_kelma_image(kelma, file) -> bool:
     try:
         kelma.image_fn = save_thumbnail(file)
     except:
+        # TODO: Log as error
         return False
     if old_image_path is not None and os.path.exists(old_image_path):
         os.remove(old_image_path)
