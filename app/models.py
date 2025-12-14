@@ -47,7 +47,7 @@ class Kelma(db.Model):
     #     ForeignKey("user.username", onupdate="CASCADE", ondelete="CASCADE"),
     #     unique=True,
     # )
-    image_fn: Mapped[str] = mapped_column(CHAR(28))
+    image_fn: Mapped[str] = mapped_column(CHAR(29))
     display_name: Mapped[str] = mapped_column(TINYTEXT())
     username: Mapped[str] = mapped_column(
         ForeignKey("user.username", onupdate="CASCADE", ondelete="CASCADE"),
