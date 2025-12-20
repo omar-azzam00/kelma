@@ -25,6 +25,7 @@ class Dev_Config:
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
     MAIL_DEFAULT_SENDER = MAIL_USERNAME + "@gmail.com"
+    FREE_PREMIUM_KELMAS = True
 class Test_Config(Dev_Config):
     def __init__(self):
         super().__init__()

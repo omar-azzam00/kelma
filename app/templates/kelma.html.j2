@@ -68,7 +68,7 @@
         </header>
         <main class="px-2 mt-8 pb-4">
             {% if extend_error_msg %}
-                <p class="text-center text-3xl text-red-500 mb-4">{{ error_msg }}</p>
+                <p class="text-center text-3xl text-red-500 mb-4">{{ extend_error_msg }}</p>
             {% endif %}
 
             {% if extend_form %}
@@ -184,12 +184,21 @@
                                 {% if form.reserve_length.errors %}
                                     <p class="text-xl text-red-500">{{ form.reserve_length.errors[0] }}</p>
                                 {% endif %}
-                                <p x-text="`السعر ${ current_checked_value * {{ price_for_month }} } ج.م`"
-                                   class="text-5xl text-center mt-6 mb-6 text-fuchsia-200">
-                                </p>
-                                <p x-text="`هذا الحجز لمده ${pluralize('شهر', 'أشهر', current_checked_value)} فقط ولا يتم تجديده تلقائيا حتي تفعل أنت ذلك.`"
-                                   class="text-center mt-6 text-2xl text-my-gray-lighter">
-                                </p>
+                                {% if free_premium %}
+                                    <p class="text-5xl text-center mt-6 mb-6 text-fuchsia-200">
+                                    السعر مجانا لفترة محدودة بدلا من <span class="w-fit text-my-gray text-4xl relative after:absolute after:w-[175%] after:h-1 after:bg-my-gray after:top-[50%] after:right-0" t x-text="`${ current_checked_value * {{ price_for_month }} } ج.م`"></span>
+                                    </p>
+                                    <p x-text="`هذا الحجز لمده ${pluralize('شهر', 'أشهر', current_checked_value)} فقط ولا يتم تجديده تلقائيا حتي تفعل أنت ذلك.`"
+                                    class="text-center mt-6 text-2xl text-my-gray-lighter">
+                                    </p>
+                                {% else %}
+                                    <p x-text="`السعر ${ current_checked_value * {{ price_for_month }} } ج.م`"
+                                    class="text-5xl text-center mt-6 mb-6 text-fuchsia-200">
+                                    </p>
+                                    <p x-text="`هذا الحجز لمده ${pluralize('شهر', 'أشهر', current_checked_value)} فقط ولا يتم تجديده تلقائيا حتي تفعل أنت ذلك.`"
+                                    class="text-center mt-6 text-2xl text-my-gray-lighter">
+                                    </p>
+                                {% endif %}
                             </div>
                         </template>
                     </div>

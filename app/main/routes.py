@@ -146,8 +146,14 @@ def new_or_normal_kelma_post(kelma):
             error_msg = f"قائمة أول {current_app.config["PREMIUM_COUNT"]} ممتلئة حاليا!"
             return error_response(premium_count)
         else:
-            db.session.commit()
-            return go_to_payment(form.reserve_length.data)
+            if current_app.config["FREE_PREMIUM_KELMAS"]:
+                activate_premium_kelma(kelma, form.reserve_length.data)
+                db.session.commit()
+                return success_response()
+            else:
+                db.session.commit()
+                return go_to_payment(form.reserve_length.data)
+
     elif form.kelma_type.data == "normal" and kelma.sort == None:
         random_sort = get_random_sort()
         shift_sort_from(random_sort)
@@ -185,7 +191,11 @@ def premium_kelma_post(kelma):
 
     if extend_form.extend.data:
         if extend_form.validate():
-            return go_to_payment(extend_form.reserve_length.data)
+            if current_app.config["FREE_PREMIUM_KELMAS"]:
+                extend_error_msg = "لا يمكن تمديد الحجز في مرحلة ال BETA"
+                return error_response()
+            else:
+                return go_to_payment(extend_form.reserve_length.data)
         else:
             return error_response()
 
@@ -215,6 +225,17 @@ def go_to_payment(reserve_length):
     )
     return redirect(url)
 
+def activate_premium_kelma(kelma, months):
+    premium = get_premium_count()
+    if premium < current_app.config["PREMIUM_COUNT"]:
+        old_sort = kelma.sort
+        if old_sort != None:
+            kelma.sort = None
+            shift_sort_back_after(old_sort)
+        sort = premium + 1
+        shift_sort_from(sort)
+        kelma.sort = sort
+        extend_kelma_reserve_end(kelma, months)
 
 def kelma_get_or_fail_response(premium_count=None, first_available_date=None, **kwargs):
     if premium_count == None:
@@ -228,6 +249,7 @@ def kelma_get_or_fail_response(premium_count=None, first_available_date=None, **
         price_for_month=current_app.config["PRICE_FOR_MONTH"],
         top_allowed=premium_count < current_app.config["PREMIUM_COUNT"],
         first_available_date=first_available_date,
+        free_premium=current_app.config["FREE_PREMIUM_KELMAS"],
         **kwargs,
     )
 
@@ -296,14 +318,7 @@ def payment_process():
         if kelma.reserve_end == None:
             premium = get_premium_count()
             if premium < current_app.config["PREMIUM_COUNT"]:
-                old_sort = kelma.sort
-                if old_sort != None:
-                    kelma.sort = None
-                    shift_sort_back_after(old_sort)
-                sort = premium + 1
-                shift_sort_from(sort)
-                kelma.sort = sort
-                extend_kelma_reserve_end(kelma, months)
+                activate_premium_kelma(kelma, months)
                 order.reserve_end = kelma.reserve_end
                 order.status_code = PAYMENT_STATUS_CODE["SUCCESS_SUBSCRIBE"]
                 db.session.commit()
@@ -312,7 +327,6 @@ def payment_process():
                 if void_transaction(id) or refund_transaction(id):
                     order.status_code = PAYMENT_STATUS_CODE["ERROR_FULL"]
                     db.session.commit()
-
         else:
             extend_kelma_reserve_end(kelma, months)
             order.reserve_end = kelma.reserve_end
