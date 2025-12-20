@@ -141,7 +141,7 @@
                     <p class="text-xl text-red-500">{{ form.content.errors[0] }}</p>
                 {% endif %}
                 {% if not kelma or kelma.normal %}
-                    <div x-data="segmented_button('{{ 'top_twenty' if not kelma and top_twenty_allowed else 'normal' }}')"
+                    <div x-data="segmented_button('{{ 'top_twenty' if not kelma and top_allowed else 'normal' }}')"
                          :class="`${current_checked_value == 'top_twenty' ? 'bg-fuchsia-800' : 'bg-my-black-lighter'} {{ 'border-2 border-red-500' if form.kelma_type.errors else '' }} max-w-sm w-full flex flex-row justify-between items-stretch rounded mt-6 p-2`"
                          x-effect="current_checked_value == 'top_twenty' ? $dispatch('top_twenty_selected') : $dispatch('top_twenty_deselected')">
                         {% for choice in form.kelma_type %}
@@ -150,7 +150,7 @@
                                     {{ choice(class="hidden", **{"x-init":"initInput($el);", "@input": "inputChecked"}) }}
                                     {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-my-black-lighter-2' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl rounded h-full after-content-['⭐']`" }) }}
                                 {% elif loop.index0 == 1 %}
-                                    {% if top_twenty_allowed %}
+                                    {% if top_allowed %}
                                         {{ choice(class="hidden", **{"x-init":"initInput($el);", "@input": "inputChecked"}) }}
                                         {{ choice.label(**{":class":"`${myInputChecked($el) ? 'bg-fuchsia-500' : ''} py-1 select-none block text-center cursor-pointer w-full text-3xl rounded h-full`" }) }}
                                     {% else %}
@@ -194,7 +194,7 @@
                         </template>
                     </div>
                 {% endif %}
-                {% if (not kelma or kelma.normal) and not top_twenty_allowed %}
+                {% if (not kelma or kelma.normal) and not top_allowed %}
                     <p class="text-2xl text-center mt-6 mb-6 text-neutral-300">
                         قائمة اول 20 كلمة ممتلئه حاليا ولكن سيكون هناك مكان فارغ ابتداءا من
                         {{ first_available_date | readable_date }}

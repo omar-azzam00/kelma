@@ -143,7 +143,7 @@ def new_or_normal_kelma_post(kelma):
     if form.kelma_type.data == "top_twenty":
         premium_count = get_premium_count()
         if premium_count >= current_app.config["PREMIUM_COUNT"]:
-            error_msg = "قائمة أول 20 ممتلئة حاليا!"
+            error_msg = f"قائمة أول {current_app.config["PREMIUM_COUNT"]} ممتلئة حاليا!"
             return error_response(premium_count)
         else:
             db.session.commit()
@@ -219,15 +219,14 @@ def go_to_payment(reserve_length):
 def kelma_get_or_fail_response(premium_count=None, first_available_date=None, **kwargs):
     if premium_count == None:
         premium_count = get_premium_count()
-    # note that the maximum of premium_count value should be 20
-    if premium_count >= 20 and first_available_date == None:
+    if premium_count >= current_app.config["PREMIUM_COUNT"] and first_available_date == None:
         first_available_date = get_first_available_date()
 
     return render_template(
         "kelma.html.j2",
         images_mimes=IMAGE_MIMES_STR,
         price_for_month=current_app.config["PRICE_FOR_MONTH"],
-        top_twenty_allowed=premium_count < 20,
+        top_allowed=premium_count < current_app.config["PREMIUM_COUNT"],
         first_available_date=first_available_date,
         **kwargs,
     )
@@ -244,14 +243,14 @@ def payment_redirect():
             msg = "لقد حدثت مشكلة غير متوقعة برجاء التواصل مع الدعم"
             redirect_to_home = False
         elif order.status_code == PAYMENT_STATUS_CODE["SUCCESS_SUBSCRIBE"]:
-            msg = f"لقد تم اشتراكك في أول 20 كلمة بنجاح لمدة {arabic_pluralize('شهر', 'أشهر', order.months)} حتى تاريخ {readable_date(cast(date, order.reserve_end))}"
+            msg = f"لقد تم اشتراكك في أول {current_app.config["PREMIUM_COUNT"]} كلمة بنجاح لمدة {arabic_pluralize('شهر', 'أشهر', order.months)} حتى تاريخ {readable_date(cast(date, order.reserve_end))}"
             redirect_to_home = True
         elif order.status_code == PAYMENT_STATUS_CODE["SUCCESS_EXTEND"]:
             msg = f"لقد تم تمديد اشتراكك بنجاح لمدة {arabic_pluralize('شهر', 'أشهر', order.months)} حتى تاريخ {readable_date(cast(date, order.reserve_end))}"
             redirect_to_home = True
         elif order.status_code == PAYMENT_STATUS_CODE["ERROR_FULL"]:
             msg = (
-                "معذرة, ولكن قائمة أول 20 كلمة ممتلئة حاليا ولقد تم اعادة المبلغ لحسابك"
+                f"معذرة, ولكن قائمة أول {current_app.config["PREMIUM_COUNT"]} كلمة ممتلئة حاليا ولقد تم اعادة المبلغ لحسابك"
             )
             redirect_to_home = False
     else:
@@ -296,7 +295,7 @@ def payment_process():
         
         if kelma.reserve_end == None:
             premium = get_premium_count()
-            if premium < 20:
+            if premium < current_app.config["PREMIUM_COUNT"]:
                 old_sort = kelma.sort
                 if old_sort != None:
                     kelma.sort = None
