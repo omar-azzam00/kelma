@@ -112,7 +112,6 @@ def new_or_normal_kelma_post(kelma):
 
     if kelma is None:
         kelma = Kelma(username=g.user.username)
-        db.session.add(kelma)
 
     if form.delete.data:
         delete_kelma(kelma)
@@ -148,9 +147,11 @@ def new_or_normal_kelma_post(kelma):
         else:
             if current_app.config["FREE_PREMIUM_KELMAS"]:
                 activate_premium_kelma(kelma, form.reserve_length.data)
+                db.session.add(kelma)
                 db.session.commit()
                 return success_response()
             else:
+                db.session.add(kelma)
                 db.session.commit()
                 return go_to_payment(form.reserve_length.data)
 
@@ -158,7 +159,8 @@ def new_or_normal_kelma_post(kelma):
         random_sort = get_random_sort()
         shift_sort_from(random_sort)
         kelma.sort = random_sort
-
+        
+    db.session.add(kelma)
     db.session.commit()
     return success_response()
 
@@ -198,8 +200,13 @@ def premium_kelma_post(kelma):
                 return go_to_payment(extend_form.reserve_length.data)
         else:
             return error_response()
-
-    if not form.validate():
+    
+    extra_validators = {}
+    if kelma.image_fn is None or kelma.sort is None:
+        extra_validators["image"] = [FileRequired("هذا الحقل مطلوب!")]
+    
+    if not form.validate(extra_validators):
+        print("Validating.......")
         if form.image.errors:
             error_msg = form.image.errors[0]
             form.image.errors = []
